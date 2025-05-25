@@ -24,9 +24,11 @@ public class BankAccount {
 			return lname;
 		case "accountid":
 			return accountID;
+		case "balance":
+			return balance;
 			default:
-				throw new IllegalArgumentException("Invlaid retrival criteria" + attname + 
-						"is not a known account label.");
+				throw new IllegalArgumentException("Invlaid retrival criteria " + attname + 
+						" is not a known account label.");
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
