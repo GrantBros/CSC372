@@ -8,6 +8,7 @@ package Bank;
  * addAll saves tons of code space 
  */
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -19,71 +20,90 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+/*Broke down start function into multiple individual functions for modularity.
+ * This provides easier manipulation of each piece of the GUI without impacting initiation of GUI.
+ * This will allow troubleshooting of individual pieces of the GUI
+ */
 public class ColorMenuApp extends Application {
 
     private TextArea textArea;
     private VBox mainPane;
     private Random rand = new Random();
+    private MenuItem showDateTime;
+    private MenuItem saveToFile;
+    private MenuItem changeColor;
+    private MenuItem exit;
 
     @Override
     public void start(Stage primaryStage) {
-        MenuBar menuBar = new MenuBar();
-        Menu menu = new Menu("Make your choice");
-
-        MenuItem showDateTime = new MenuItem("It is but a Construct");
-        MenuItem saveToFile = new MenuItem("Record the Past");
-        MenuItem changeColor = new MenuItem("A different View");
-        MenuItem exit = new MenuItem("Retreat");
-
-        menu.getItems().addAll(showDateTime, saveToFile, changeColor, exit);
-        menuBar.getMenus().add(menu);
-
-        textArea = new TextArea();
-        textArea.setPrefHeight(50);
-
-        mainPane = new VBox();
-        mainPane.getChildren().add(menuBar);
+    	//break down into smaller modular functions
+    	textArea = buildText();
+        MenuBar menuBar = buildMenuBar();
+        StackPane centerPane = buildCPane();
         
-        StackPane centerpane = new StackPane();
-        centerpane.setPrefHeight(350);
-        centerpane.getChildren().add(textArea);
-        textArea.setPrefSize(200, 100);
+        mainPane = new VBox(menuBar, centerPane);
+        Scene scene = new Scene(mainPane, 500, 400); 
+   
+        menuActions(primaryStage);
         
-        StackPane.setMargin(textArea, new javafx.geometry.Insets(40));
-        mainPane.getChildren().add(centerpane);
-
-        Scene scene = new Scene(mainPane, 500, 400);
-
-        showDateTime.setOnAction(e -> {
-            String dateTime = LocalDateTime.now().toString();
-            textArea.appendText("Current Date & Time: " + dateTime + "\n");
-        });
-
-        saveToFile.setOnAction(e -> {
-            try (FileWriter writer = new FileWriter("log.txt")) {
-                writer.write(textArea.getText());
-                textArea.appendText("Saved to log.txt (overwritten)\n");
-            } catch (IOException ex) {
-                textArea.appendText("Error writing to file.\n");
-            }
-        });
-
-        // Change background color to a new random green hue
-        changeColor.setOnAction(e -> {
-            Color randomGreen = getRandomGreenHue();
-            mainPane.setBackground(new Background(new BackgroundFill(randomGreen, null, null)));
-
-            String hexColor = colorToHex(randomGreen);
-            changeColor.setText("Change Perspective from Green Hue: " + hexColor);
-            textArea.appendText("Background changed to color: " + hexColor + "\n");
-        });
-
-        exit.setOnAction(e -> primaryStage.close());
-
-        primaryStage.setTitle("Four Options");
+        primaryStage.setTitle("Four Horsemen");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+private TextArea buildText() {
+        	
+	TextArea area = new TextArea();
+	area.setPrefHeight(50);
+	area.setPrefSize(250, 150);
+	return area;
+	}
+private MenuBar buildMenuBar() {
+    MenuBar menuBar = new MenuBar();
+    Menu menu = new Menu("Make your choice");
+
+    showDateTime = new MenuItem("It is but a Construct");
+    saveToFile = new MenuItem("Record the Past");
+    changeColor = new MenuItem("A different View");
+    exit = new MenuItem("Retreat");
+
+    menu.getItems().addAll(showDateTime, saveToFile, changeColor, exit);
+    menuBar.getMenus().add(menu);
+    return menuBar;
+}
+private StackPane buildCPane() {
+	//setting pane dimensions and text
+    StackPane center = new StackPane(textArea);
+    center.setPrefHeight(350);
+    StackPane.setMargin(textArea, new Insets(40));
+    return center;
+}
+private void menuActions(Stage primaryStage) {
+	//event handling function
+    showDateTime.setOnAction(e -> {
+        String dateTime = LocalDateTime.now().toString();
+        textArea.appendText("Current Date & Time: " + dateTime + "\n");
+    });
+    saveToFile.setOnAction(e -> {
+        try (FileWriter writer = new FileWriter("log.txt")) {
+            writer.write(textArea.getText());
+            textArea.appendText("Saved to log.txt (overwritten)\n");
+        } catch (IOException ex) {
+            textArea.appendText("Error writing to file.\n");
+        }
+    });
+
+    changeColor.setOnAction(e -> {
+        Color randomGreen = getRandomGreenHue();
+        mainPane.setBackground(new Background(new BackgroundFill(randomGreen, null, null)));
+
+        String hexColor = colorToHex(randomGreen);
+        changeColor.setText("Change Perspective from Green Hue: " + hexColor);
+        textArea.appendText("Background changed to color: " + hexColor + "\n");
+    });
+
+    exit.setOnAction(e -> primaryStage.close());
+}
 
     // Helper: generate random greenish hue
     private Color getRandomGreenHue() {
